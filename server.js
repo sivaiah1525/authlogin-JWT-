@@ -37,22 +37,25 @@ app.post('/user/creat', async function(req, res) {
 
 app.post('/user/login', function(req, res) {
     try {
-        const email = req.body.email
         const password = req.body.password
-        creatUser.findOne({ email }).then(user => {
+        creatUser.findOne({ mailId: req.body.mailId }).then(user => {
             if (!user) {
                 return res.status(400).json({ msg: "User not exist" })
-            }
-        })
-        bcrypt.compare(password, user.password, (err, data) => {
-            if (data) {
-                return res.status(200).json({ msg: "Login success" })
             } else {
-                return res.status(401).json({ msg: "Invalid credencial" })
+                bcrypt.compare(password, user.password, (err, data) => {
+                    if (data) {
+                        jwt.sign({ user }, secret, (error, token) => {
+                            res.json(token)
+                        });
+                    } else {
+                        return res.status(401).json({ msg: "Invalid credencial" })
+                    }
+                })
             }
         })
+
     } catch (error) {
-        res.status(400).send('bad request');
+        res.json(error);
 
     }
 

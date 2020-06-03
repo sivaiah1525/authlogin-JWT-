@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 var secret = 'fe1a1915a379f3be5394b64d14794932';
 const db = require('./models');
 const creatUser = require('./models/creatuser');
-const loginUser = require('./models/loginuser');
+const Student = require('./models/student ');
 
 
 
@@ -61,18 +61,61 @@ app.post('/user/login', function(req, res) {
 
 })
 
-
-
-
-
-// GET LOGINUSERS
-app.get('/user/all', async function(req, res) {
+// STUDENTES 
+// creat 
+app.post('/user/student', async function(req, res) {
     try {
-        const users = await loginUser.find({}).lean();
-        res.json(users)
+        const student = req.body
+        const newstudent = new Student(student);
+        const result = await newstudent.save();
+        res.json(result);
     } catch (error) {
         res.status(400).send('bad request');
+    }
+})
 
+// get all 
+app.get('/user/student/all', async function(req, res) {
+        try {
+            var skip = Number(req.query.skip)
+            var limi = Number(req.query.limit)
+            var sort = Number(req.query.sort)
+            var search = req.query.search
+            const result = await Student.find({ studentname: { $regex: search } }).skip(skip).limit(limi).sort({ studentname: sort })
+            res.json(result)
+        } catch (error) {
+            res.status(400).send('bad request');
+        }
+    })
+    //  DeletById 
+app.post('/user/student/deletbyid', async(req, res) => {
+    try {
+        const result = await Student.findByIdAndDelete({ _id: req.body.id }).lean();
+        res.json(result)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+// updateByID 
+app.put('/user/student/updatebyid', async(req, res) => {
+    try {
+        const updateid = { _id: req.body.id };
+        console.log(updateid)
+        const updatevalues = {
+            studentname: req.body.studentname,
+            Fathername: req.body.Fathername,
+            mailId: req.body.mailId,
+            RollNo: req.body.RollNo,
+            DOF: req.body.DOF,
+            Rank: req.body.Rank,
+            Departent: req.body.Departent
+        };
+        console.log(updatevalues)
+        const result = await Student.updateOne(updateid, updatevalues).lean();
+        res.json(result)
+    } catch (error) {
+        console.log(error)
     }
 })
 

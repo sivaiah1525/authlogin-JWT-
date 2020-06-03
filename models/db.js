@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const URL = 'mongodb://localhost:27017/users';
+const URL = 'mongodb+srv://student:student@cluster0-i4rfj.mongodb.net/test';
 
 
 async function connectToDB() {

@@ -145,7 +145,7 @@ app.post('/forgotpassword', async(req, res) => {
                         to: mailId,
                         subject: 'Reset your account password',
                         html: '<h4><b>Reset Password</b></h4>' +
-                            '<p>To reset your password, complete this form:</p>' + '<a href="http://localhost:4200/resetpassword">Resetpassword Link</a>'
+                            '<p>To reset your password, complete this form:</p>' + '<a href="http://localhost:4200/resetpassword">Resetpassword Link Click Here</a>'
                     };
                     transporter.sendMail(mailOptions, function(error, info) {
                         if (info) {

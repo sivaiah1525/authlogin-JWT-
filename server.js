@@ -40,6 +40,7 @@ app.post('/user/login', function(req, res) {
     try {
         const password = req.body.password
         creatUser.findOne({ mailId: req.body.mailId }).then(user => {
+            console.log(user);
             if (!user) {
                 return res.status(400).json({ msg: "User not exist" })
             } else {
@@ -102,7 +103,6 @@ app.post('/user/student/deletbyid', async(req, res) => {
 app.put('/user/student/updatebyid', async(req, res) => {
     try {
         const updateid = { _id: req.body.id };
-        console.log(updateid)
         const updatevalues = {
             studentname: req.body.studentname,
             Fathername: req.body.Fathername,
@@ -112,7 +112,6 @@ app.put('/user/student/updatebyid', async(req, res) => {
             Rank: req.body.Rank,
             Departent: req.body.Departent
         };
-        console.log(updatevalues)
         const result = await Student.updateOne(updateid, updatevalues).lean();
         res.json(result)
     } catch (error) {
@@ -121,11 +120,10 @@ app.put('/user/student/updatebyid', async(req, res) => {
 })
 
 
-// Reset password verification User send maill link
-app.post('/resetpassword', async(req, res) => {
+//  forgotpassword verification User send maill link
+app.post('/forgotpassword', async(req, res) => {
     var mailId = req.body.mailId
     await creatUser.findOne({ mailId: mailId }).then((user) => {
-        console.log(user)
         if (!user) {
             return res.status(400).json({ msg: "User not find" })
         } else {
@@ -165,9 +163,26 @@ app.post('/resetpassword', async(req, res) => {
 })
 
 // resetPassword update user 
-app.post('/resetpassword/update', async(req, res) => {
-    const hashresetpassword = await bcrypt.hash(req.body.Cfmpassword, 10)
+app.post('/resetpassword', async(req, res) => {
+    try {
+        const updatemailId = { mailId: req.body.mailId }
+        const hashpassword = await bcrypt.hash(req.body.password, 10)
+        await creatUser.findOne(updatemailId).then((user) => {
+            if (!user) {
+                res.json({ msg: "undefind user" })
+            } else {
+                user.password = hashpassword
+                user.save().then((result) => {
+                    res.json(result)
+                }).catch((err) => {
+                    res.json(error)
+                })
+            }
+        })
+    } catch (error) {
+        res.json(error)
 
+    }
 
 })
 

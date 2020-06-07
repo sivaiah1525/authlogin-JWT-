@@ -2,18 +2,17 @@
 const express = require('express');
 const app = express();
 const cors = require('cors')
-const port = 5000;
+const port = 4000;
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const modeRouter = require("./Routes/mode-routes");
 app.use(cors());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
-
-
+app.use(modeRouter);
 async function connectToDB() {
     try {
-        const URL = 'mongodb+srv://student:student@cluster0-i4rfj.mongodb.net/test';
+        const URL = 'mongodb://localhost:27017/Studentproject';
         await mongoose.connect(URL, {
             useNewUrlParser: true,
             useUnifiedTopology: true

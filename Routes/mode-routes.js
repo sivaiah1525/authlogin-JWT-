@@ -5,10 +5,10 @@ const modeController = require("../controller/mode-controller");
 router.post("/registration", modeController.Registration);
 router.post("/login", modeController.Login);
 router.post("/newstudent", modeController.newstudent);
+router.post("/student/deletbyid", modeController.updateByIDStudent);
+router.post("/student/updatebyid", modeController.updateByIDStudent);
+router.post("/maill/forgotpassword", modeController.forgotpasswordMaill);
+router.post("/update/resetpassword", modeController.ResetPasswordUpdate);
 router.get("/student/all", modeController.GetAllStudent);
-router.get("/student/deletbyid", modeController.updateByIDStudent);
-router.get("/student/updatebyid", modeController.updateByIDStudent);
-router.get("/maill/forgotpassword", modeController.forgotpasswordMaill);
-router.get("/update/resetpassword", modeController.ResetPasswordUpdate);
 
 module.exports = router;

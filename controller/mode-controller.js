@@ -38,7 +38,7 @@ const Login = async(req, res) => {
                 bcrypt.compare(password, user.password, (err, data) => {
                     if (data) {
                         jwt.sign({ user }, secret, (error, token) => {
-                            res.json(token)
+                            res.json({ token: token })
                         });
                     } else {
                         return res.status(401).json({ msg: "Invalid credencial" })
@@ -76,6 +76,7 @@ const GetAllStudent = async(req, res) => {
         var limi = Number(req.query.limit)
         var sort = Number(req.query.sort)
         var search = req.query.search
+        console.log(skip, limi, sort, search)
         const result = await Student.find({ studentname: { $regex: search } }).skip(skip).limit(limi).sort({ studentname: sort })
         res.json(result)
     } catch (error) {

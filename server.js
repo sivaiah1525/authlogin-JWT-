@@ -4,188 +4,24 @@ const app = express();
 const cors = require('cors')
 const port = 5000;
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-var nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken');
-var secret = 'fe1a1915a379f3be5394b64d14794932';
-const db = require('./models');
-const creatUser = require('./models/creatuser');
-const Student = require('./models/student ');
-
-
-
-
+const mongoose = require('mongoose');
+const modeRouter = require("./Routes/mode-routes");
 app.use(cors());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-// CREAT USER NEW
-app.post('/user/creat', async function(req, res) {
+async function connectToDB() {
     try {
-        const hashpassword = await bcrypt.hash(req.body.password, 10)
-        const user = { name: req.body.name, mailId: req.body.mailId, password: hashpassword }
-        const newUser = new creatUser(user);
-        const result = await newUser.save();
-        res.json(result);
+        const URL = 'mongodb+srv://student:student@cluster0-i4rfj.mongodb.net/test';
+        await mongoose.connect(URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('Succefully Connected To DB');
     } catch (error) {
-        res.status(400).send('bad request');
+        console.error('Database Connection Failed');
     }
-})
-
-
-// LOGIN USERE
-
-app.post('/user/login', function(req, res) {
-    try {
-        const password = req.body.password
-        creatUser.findOne({ mailId: req.body.mailId }).then(user => {
-            console.log(user);
-            if (!user) {
-                return res.status(400).json({ msg: "User not exist" })
-            } else {
-                bcrypt.compare(password, user.password, (err, data) => {
-                    if (data) {
-                        jwt.sign({ user }, secret, (error, token) => {
-                            res.json(token)
-                        });
-                    } else {
-                        return res.status(401).json({ msg: "Invalid credencial" })
-                    }
-                })
-            }
-        })
-
-    } catch (error) {
-        res.json(error);
-
-    }
-
-})
-
-
-// creat newstudent
-app.post('/user/student', async function(req, res) {
-    try {
-        const student = req.body
-        const newstudent = new Student(student);
-        const result = await newstudent.save();
-        res.json(result);
-    } catch (error) {
-        res.status(400).send('bad request');
-    }
-})
-
-// get all STUDENTES
-app.get('/user/student/all', async function(req, res) {
-        try {
-            var skip = Number(req.query.skip)
-            var limi = Number(req.query.limit)
-            var sort = Number(req.query.sort)
-            var search = req.query.search
-            const result = await Student.find({ studentname: { $regex: search } }).skip(skip).limit(limi).sort({ studentname: sort })
-            res.json(result)
-        } catch (error) {
-            res.status(400).send('bad request');
-        }
-    })
-    //  DeletById student
-app.post('/user/student/deletbyid', async(req, res) => {
-    try {
-        const result = await Student.findByIdAndDelete({ _id: req.body.id }).lean();
-        res.json(result)
-    } catch (error) {
-        console.log(error)
-    }
-})
-
-// updateByID student
-app.put('/user/student/updatebyid', async(req, res) => {
-    try {
-        const updateid = { _id: req.body.id };
-        const updatevalues = {
-            studentname: req.body.studentname,
-            Fathername: req.body.Fathername,
-            mailId: req.body.mailId,
-            RollNo: req.body.RollNo,
-            DOF: req.body.DOF,
-            Rank: req.body.Rank,
-            Departent: req.body.Departent
-        };
-        const result = await Student.updateOne(updateid, updatevalues).lean();
-        res.json(result)
-    } catch (error) {
-        console.log(error)
-    }
-})
-
-
-//  forgotpassword verification User send maill link
-app.post('/forgotpassword', async(req, res) => {
-    var mailId = req.body.mailId
-    await creatUser.findOne({ mailId: mailId }).then((user) => {
-        if (!user) {
-            return res.status(400).json({ msg: "User not find" })
-        } else {
-            jwt.sign({ id: user._id }, secret, (error, token) => {
-                if (!token) {
-                    res.send(400).json({ msg: "error in token" })
-                } else {
-                    var transporter = nodemailer.createTransport({
-                        host: 'smtp.gmail.com',
-                        port: 465,
-                        secure: true,
-                        auth: {
-                            user: 'sivagopi821@gmail.com',
-                            pass: 'mech@537'
-                        }
-                    });
-                    var mailOptions = {
-                        from: 'sivagopi821@gmail.com',
-                        to: mailId,
-                        subject: 'Reset your account password',
-                        html: '<h4><b>Reset Password</b></h4>' +
-                            '<p>To reset your password, complete this form:</p>' + '<a href="http://localhost:4200/resetpassword">Resetpassword Link Click Here</a>'
-                    };
-                    transporter.sendMail(mailOptions, function(error, info) {
-                        if (info) {
-                            res.json({ msg: " maill send" })
-                        } else {
-                            res.json({ msg: " mail not send " })
-                        }
-                        transporter.close();
-                    });
-                }
-            })
-        }
-
-    })
-})
-
-// resetPassword update user 
-app.post('/resetpassword', async(req, res) => {
-    try {
-        const updatemailId = { mailId: req.body.mailId }
-        const hashpassword = await bcrypt.hash(req.body.password, 10)
-        await creatUser.findOne(updatemailId).then((user) => {
-            if (!user) {
-                res.json({ msg: "undefind user" })
-            } else {
-                user.password = hashpassword
-                user.save().then((result) => {
-                    res.json(result)
-                }).catch((err) => {
-                    res.json(error)
-                })
-            }
-        })
-    } catch (error) {
-        res.json(error)
-
-    }
-
-})
-
-
-
+}
+connectToDB()
 app.listen(port, console.log(`app is running @ port number ${port}`))

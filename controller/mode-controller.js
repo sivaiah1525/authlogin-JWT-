@@ -76,7 +76,6 @@ const GetAllStudent = async(req, res) => {
         var limi = Number(req.query.limit)
         var sort = Number(req.query.sort)
         var search = req.query.search
-        console.log(skip, limi, sort, search)
         const result = await Student.find({ studentname: { $regex: search } }).skip(skip).limit(limi).sort({ studentname: sort })
         res.json(result)
     } catch (error) {

@@ -3,8 +3,8 @@ const router = express.Router();
 const modeController = require("../controller/mode-controller");
 const message = require('../models/firebase')
 
-router.post("/registration",  message.message, modeController.Registration);
-router.post("/login",modeController.Login);
+router.post("/registration", modeController.Registration);
+router.post("/login", modeController.Login);
 router.post("/newstudent", modeController.newstudent);
 router.post("/student/deletbyid", modeController.updateByIDStudent);
 router.post("/student/updatebyid", modeController.updateByIDStudent);

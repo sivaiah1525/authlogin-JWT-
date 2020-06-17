@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const modeController = require("../controller/mode-controller");
-const message = require('../models/firebase')
 
 router.post("/registration", modeController.Registration);
 router.post("/login", modeController.Login);
